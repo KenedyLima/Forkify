@@ -1,13 +1,22 @@
 import View from './view.js';
-
+import Fraction from 'fraction.js';
 class RecipeView extends View {
   _parentElement = document.querySelector('.recipe');
   _errorMessage =
     'Could not find a recipe with this id. Please try another one!';
-
+  _recipe;
+  _bookmarkButton;
   render(recipe) {
+    if (!this._recipe) this._recipe = recipe;
+
+    const bookmarkIcon = recipe.bookmarked
+      ? 'icons.21bad73c.svg#icon-bookmark-fill'
+      : 'icons.21bad73c.svg#icon-bookmark';
+    const userGeneratedHTML = `<svg>
+    <use href="icons.21bad73c.svg#icon-user"></use>
+  </svg>`;
     const html = `  <figure class="recipe__fig">
-    <img src="${recipe.imageUrl}" alt="Tomato" class="recipe__img" />
+    <img src="${recipe.image_url}" alt="Tomato" class="recipe__img" />
     <h1 class="recipe__title">
       <span>${recipe.title}</span>
     </h1>
@@ -35,19 +44,21 @@ class RecipeView extends View {
           </svg>
         </button>
         <button class="btn--tiny btn--increase-servings">
-          <svg>
+          <svg ">
             <use href="icons.21bad73c.svg#icon-plus-circle"></use>
           </svg>
         </button>
       </div>
     </div>
   
-    <div class="recipe__user-generated">
-
+    <div class="recipe__user-generated" ${
+      recipe.userGenerated ? '' : "style = 'background-color:#f9f5f3;'"
+    }>
+    ${recipe.userGenerated ? userGeneratedHTML : ''}
     </div>
     <button class="btn--round">
-      <svg class="">
-        <use href="icons.21bad73c.svg#icon-bookmark"></use>
+      <svg class="bookmark--icon ${recipe.bookmarked ? 'bookmarked' : ''}">
+        <use href="${bookmarkIcon}"></use>
       </svg>
     </button>
   </div>
@@ -70,7 +81,7 @@ class RecipeView extends View {
     </p>
     <a
       class="btn--small recipe__btn"
-      href="${recipe.source}"
+      href="${recipe.source_url}"
       target="_blank"
     >
       <span>Directions</span>
@@ -82,11 +93,39 @@ class RecipeView extends View {
   `;
     this._clean();
     this._parentElement.insertAdjacentHTML('afterbegin', html);
+    this._recipe = recipe;
+    this._bookmarkButton = document.querySelector('.btn--round');
   }
 
   addHandlerRender(handler) {
     ['load', 'hashchange'].forEach(type => {
-      window.addEventListener(type, handler);
+      window.addEventListener(type, function (e) {
+        handler(e);
+      });
+    });
+  }
+
+  handleBookmarks(handler) {
+    const recipe = this._recipe;
+
+    this._bookmarkButton.addEventListener('click', function (e) {
+      const bookmarkButton = e.target.closest('.btn--round');
+      if (bookmarkButton) {
+        const icon = bookmarkButton.children[0];
+        let href;
+        let bookmarked = false;
+
+        if (icon.classList.contains('bookmarked')) {
+          href = 'icons.21bad73c.svg#icon-bookmark';
+        } else {
+          href = 'icons.21bad73c.svg#icon-bookmark-fill';
+          bookmarked = true;
+        }
+
+        icon.classList.toggle('bookmarked');
+        icon.children[0].setAttribute('href', href);
+        handler(recipe, bookmarked);
+      }
     });
   }
 

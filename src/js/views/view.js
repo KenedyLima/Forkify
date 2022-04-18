@@ -18,11 +18,14 @@ export default class View {
           `;
     this._parentElement.insertAdjacentHTML('afterbegin', html);
   }
-  renderErrorMessage(message = this._errorMessage) {
+  renderErrorMessage(
+    icon = 'icon-alert-triangle',
+    message = this._errorMessage
+  ) {
     const html = `<div class="error">
         <div>
           <svg>
-            <use href="icons.21bad73c.svg#icon-alert-triangle"></use>
+            <use href="icons.21bad73c.svg#${icon}"></use>
           </svg>
         </div>
         <p>${message}</p>
