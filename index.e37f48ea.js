@@ -733,8 +733,8 @@ function addActiveClassToLastBookmark() {
     console.log(lastElement);
 }
 function updateBookmarkContainerStyles(update) {
-    height = "46rem";
-    overflow = "scroll";
+    let height = "46rem";
+    let overflow = "scroll";
     if (!update) {
         height = "";
         overflow = "";
